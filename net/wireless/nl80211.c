@@ -2517,6 +2517,10 @@ static int nl80211_set_station(struct sk_buff *skb, struct genl_info *info)
 		params.plink_state =
 		    nla_get_u8(info->attrs[NL80211_ATTR_STA_PLINK_STATE]);
 
+	if (info->attrs[NL80211_ATTR_LOCAL_MESH_POWER_MODE])
+		params.local_ps_mode =
+			nla_get_u8(info->attrs[NL80211_ATTR_LOCAL_MESH_POWER_MODE]);
+
 	err = get_vlan(info, rdev, &params.vlan);
 	if (err)
 		goto out;
@@ -2530,6 +2534,8 @@ static int nl80211_set_station(struct sk_buff *skb, struct genl_info *info)
 	case NL80211_IFTYPE_P2P_GO:
 		/* disallow mesh-specific things */
 		if (params.plink_action)
+			err = -EINVAL;
+		if (params.local_ps_mode)
 			err = -EINVAL;
 		break;
 	case NL80211_IFTYPE_P2P_CLIENT:
@@ -2553,6 +2559,8 @@ static int nl80211_set_station(struct sk_buff *skb, struct genl_info *info)
 		/* can't change the TDLS bit */
 		if (!(params.sta_flags_set & BIT(NL80211_STA_FLAG_TDLS_PEER)) &&
 		    (params.sta_flags_mask & BIT(NL80211_STA_FLAG_TDLS_PEER)))
+			err = -EINVAL;
+		if (params.local_ps_mode)
 			err = -EINVAL;
 		break;
 	case NL80211_IFTYPE_MESH_POINT:

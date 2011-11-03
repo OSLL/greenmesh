@@ -804,6 +804,11 @@ static void sta_apply_parameters(struct ieee80211_local *local,
 				mesh_plink_block(sta);
 				break;
 			}
+
+		if (params->local_ps_mode) {
+			ieee80211s_set_local_ps_mode(sta,
+				params->local_ps_mode);
+		}
 #endif
 	}
 }
