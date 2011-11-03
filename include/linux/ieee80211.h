@@ -546,6 +546,17 @@ static inline int ieee80211_is_qos_nullfunc(__le16 fc)
 	       cpu_to_le16(IEEE80211_FTYPE_DATA | IEEE80211_STYPE_QOS_NULLFUNC);
 }
 
+/**
+ * ieee80211s_has_qos_pm - check Power Save Level in QoS control
+ * @qc - QoS control bytes in little-endian byteorder
+ */
+
+static inline int ieee80211s_has_qos_pm(__le16 qc)
+{
+	return (qc & cpu_to_le16(
+			IEEE80211_QOS_CTL_MESH_PS_LEVEL)) != 0;
+}
+
 struct ieee80211s_hdr {
 	u8 flags;
 	u8 ttl;
