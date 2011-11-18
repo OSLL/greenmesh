@@ -270,6 +270,28 @@ mesh_add_meshid_ie(struct sk_buff *skb, struct ieee80211_sub_if_data *sdata)
 }
 
 int
+mesh_add_awake_window_ie(struct sk_buff *skb, struct ieee80211_sub_if_data *sdata)
+{
+	struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
+	u8 *pos;
+
+	if (ifmsh->mshcfg.power_mode == NL80211_MESH_POWER_ACTIVE)
+		return 0;
+
+	if (skb_tailroom(skb) < 4)
+		return -ENOMEM;
+
+	pos = skb_put(skb, 2 + 2);
+	*pos++ = WLAN_EID_MESH_AWAKE_WINDOW;
+	*pos++ = 2;
+	/* 2 byte although dot11MeshAwakeWindowDuration is u32 */
+	/* TODO this is probably wrong */
+	memcpy(pos, &ifmsh->mshcfg.dot11MeshAwakeWindowDuration, 2);
+
+	return 0;
+}
+
+int
 mesh_add_vendor_ies(struct sk_buff *skb, struct ieee80211_sub_if_data *sdata)
 {
 	struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;

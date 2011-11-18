@@ -1478,7 +1478,7 @@ void ieee80211_xmit(struct ieee80211_sub_if_data *sdata, struct sk_buff *skb)
 			}
 
 	ieee80211_set_qos_hdr(sdata, skb);
-	if (ieee80211_vif_is_mesh(&sdata->vif)
+	if (ieee80211_vif_is_mesh(&sdata->vif))
 		ieee80211_set_mesh_ps_fields(sdata, hdr);
 	ieee80211_tx(sdata, skb, false);
 	rcu_read_unlock();
@@ -2360,6 +2360,7 @@ struct sk_buff *ieee80211_beacon_get_tim(struct ieee80211_hw *hw,
 		    mesh_add_rsn_ie(skb, sdata) ||
 		    mesh_add_meshid_ie(skb, sdata) ||
 		    mesh_add_meshconf_ie(skb, sdata) ||
+		    mesh_add_awake_window_ie(skb, sdata) ||
 		    mesh_add_vendor_ies(skb, sdata)) {
 			pr_err("o11s: couldn't add ies!\n");
 			goto out;
