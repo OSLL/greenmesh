@@ -1968,6 +1968,9 @@ enum nl80211_mesh_sync_method {
  * @NL80211_MESHCONF_AUTO_OPEN_PLINKS: whether we should automatically
  * open peer links when we detect compatible mesh peers.
  *
+ * @NL80211_MESHCONF_SYNC_METHOD: currently active synchronization method
+ * for 11s Extensible synchronization framework (see 11C.12.2)
+ *
  * @NL80211_MESHCONF_HWMP_MAX_PREQ_RETRIES: the number of action frames
  * containing a PREQ that an MP can send to a particular destination (path
  * target)
@@ -2014,6 +2017,7 @@ enum nl80211_meshconf_params {
 	NL80211_MESHCONF_MAX_RETRIES,
 	NL80211_MESHCONF_TTL,
 	NL80211_MESHCONF_AUTO_OPEN_PLINKS,
+	NL80211_MESHCONF_SYNC_METHOD,
 	NL80211_MESHCONF_HWMP_MAX_PREQ_RETRIES,
 	NL80211_MESHCONF_PATH_REFRESH_TIME,
 	NL80211_MESHCONF_MIN_DISCOVERY_TIMEOUT,
