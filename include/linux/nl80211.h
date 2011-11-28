@@ -1914,6 +1914,30 @@ enum nl80211_mntr_flags {
 	NL80211_MNTR_FLAG_MAX = __NL80211_MNTR_FLAG_AFTER_LAST - 1
 };
 
+ /**
+ * enum nl80211_mesh_sync_method - mesh synchronization methods for
+ * Extensible synchronization framework (see 11C.12.2)
+ *
+ * @__NL80211_MESH_SYNC_METHOD_INVALID - internal use
+ *
+ * @NL80211_MESH_SYNC_METHOD_NEIGHBOR_OFFSET - neighbor offset
+ *	synchronization, 802.11s default synchronization method
+ *
+ * @__NL80211_MESH_SYNC_METHOD_AFTER_LAST - internal use
+ * @NL80211_MESH_SYNC_METHOD_MAX - highest possible sync method
+ */
+
+enum nl80211_mesh_sync_method {
+  __NL80211_MESH_SYNC_METHOD_INVALID,
+
+  NL80211_MESH_SYNC_METHOD_NEIGHBOR_OFFSET,
+
+  __NL80211_MESH_SYNC_METHOD_AFTER_LAST,
+  NL80211_MESH_SYNC_METHOD_MAX = __NL80211_MESH_SYNC_METHOD_AFTER_LAST - 1
+};
+
+/**
+
 /**
  * enum nl80211_meshconf_params - mesh configuration parameters
  *
