@@ -777,6 +777,7 @@ struct mesh_config {
 	u8  dot11MeshTTL;
 	/* non-peer mesh power save mode */
 	u8 power_mode;
+	u32 dot11MeshAwakeWindowDuration;
 	/* ttl used in path selection information elements */
 	u8  element_ttl;
 	bool auto_open_plinks;
@@ -2382,6 +2383,7 @@ struct ieee802_11_elems {
 	struct ieee80211_meshconf_ie *mesh_config;
 	u8 *mesh_id;
 	u8 *peering;
+	u8 *awake_window;
 	u8 *preq;
 	u8 *prep;
 	u8 *perr;
