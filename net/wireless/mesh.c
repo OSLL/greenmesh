@@ -34,6 +34,7 @@
 
 #define MESH_MAX_PREQ_RETRIES	4
 
+#define MESH_SYNC_NEIGHBOR_OFFSET_MAX_NEIGHBORS 16
 
 const struct mesh_config default_mesh_config = {
 	.dot11MeshRetryTimeout = MESH_RET_T,
@@ -44,6 +45,8 @@ const struct mesh_config default_mesh_config = {
 	.element_ttl = MESH_DEFAULT_ELEMENT_TTL,
 	.auto_open_plinks = true,
 	.dot11MeshMaxPeerLinks = MESH_MAX_ESTAB_PLINKS,
+	.dot11MeshActiveSynchronizationMethod = NL80211_MESH_SYNC_METHOD_NEIGHBOR_OFFSET,
+	.dot11MeshNbrOffsetMaxNeighbor = MESH_SYNC_NEIGHBOR_OFFSET_MAX_NEIGHBORS,
 	.dot11MeshHWMPactivePathTimeout = MESH_PATH_TIMEOUT,
 	.dot11MeshHWMPpreqMinInterval = MESH_PREQ_MIN_INT,
 	.dot11MeshHWMPnetDiameterTraversalTime = MESH_DIAM_TRAVERSAL_TIME,
