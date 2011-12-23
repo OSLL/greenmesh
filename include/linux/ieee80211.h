@@ -1452,6 +1452,18 @@ enum {
 };
 
 
+/**
+ * enum - mesh time synchronization protocol
+ *
+ * @IEEE80211_TIME_SYNC_NEIGHBOR_OFFSET: the default time synchronization protocol
+ * @IEEE80211_TIME_SYNC_VENDOR: a vendor specific protocol that will
+ * be specified in a vendor specific information element
+ */
+enum {
+	IEEE80211_TIME_SYNC_NEIGHBOR_OFFSET = 1,
+	IEEE80211_TIME_SYNC_VENDOR = 255,
+};
+
 /*
  * IEEE 802.11-2007 7.3.2.9 Country information element
  *

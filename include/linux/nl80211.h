@@ -1968,8 +1968,8 @@ enum nl80211_mesh_sync_method {
  * @NL80211_MESHCONF_AUTO_OPEN_PLINKS: whether we should automatically
  * open peer links when we detect compatible mesh peers.
  *
- * @NL80211_MESHCONF_SYNC_METHOD: currently active synchronization method
- * for 11s Extensible synchronization framework (see 11C.12.2)
+ * @NL80211_MESHCONF_SYNC_OFFSET_MAX_NEIGHBOR: maximum number of neighbors
+ * to synchronize to for 802.11s default synchronization method (see 11C.12.2.2)
  *
  * @NL80211_MESHCONF_HWMP_MAX_PREQ_RETRIES: the number of action frames
  * containing a PREQ that an MP can send to a particular destination (path
@@ -2017,7 +2017,7 @@ enum nl80211_meshconf_params {
 	NL80211_MESHCONF_MAX_RETRIES,
 	NL80211_MESHCONF_TTL,
 	NL80211_MESHCONF_AUTO_OPEN_PLINKS,
-	NL80211_MESHCONF_SYNC_METHOD,
+	NL80211_MESHCONF_SYNC_OFFSET_MAX_NEIGHBOR,	
 	NL80211_MESHCONF_HWMP_MAX_PREQ_RETRIES,
 	NL80211_MESHCONF_PATH_REFRESH_TIME,
 	NL80211_MESHCONF_MIN_DISCOVERY_TIMEOUT,
@@ -2050,6 +2050,10 @@ enum nl80211_meshconf_params {
  * vendor specific path metric or disable it to use the default Airtime
  * metric.
  *
+ * @NL80211_MESH_SETUP_ENABLE_VENDOR_TIME_SYNC: Enable this option to use a
+ * vendor specific synchronization method or disable it to use the default
+ * neighbor offset synchronization
+ *
  * @NL80211_MESH_SETUP_IE: Information elements for this mesh, for instance, a
  * robust security network ie, or a vendor specific information element that
  * vendors will use to identify the path selection methods and metrics in use.
@@ -2073,6 +2077,7 @@ enum nl80211_mesh_setup_params {
 	__NL80211_MESH_SETUP_INVALID,
 	NL80211_MESH_SETUP_ENABLE_VENDOR_PATH_SEL,
 	NL80211_MESH_SETUP_ENABLE_VENDOR_METRIC,
+	NL80211_MESH_SETUP_ENABLE_VENDOR_TIME_SYNC,
 	NL80211_MESH_SETUP_IE,
 	NL80211_MESH_SETUP_USERSPACE_AUTH,
 	NL80211_MESH_SETUP_USERSPACE_AMPE,
