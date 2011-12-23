@@ -476,6 +476,24 @@ struct ieee80211_if_ibss {
 	} state;
 };
 
+/**
+ * struct mesh_sync_ops - Extensible synchronization framework interface
+ *
+ * these declarations define the interface, which enables
+ * vendor-specific mesh synchronization
+ *
+ */
+struct ieee80211_mesh_sync_ops {
+       void (*rx_bcn_presp)(struct ieee80211_sub_if_data *sdata,
+                                       u16 stype,
+                                       struct ieee80211_mgmt *mgmt,
+                                       size_t len,
+                                       struct ieee80211_rx_status *rx_status);
+       void (*tbtt)(struct sk_buff *skb, struct ieee80211_sub_if_data *sdata);
+
+       /* add other framework functions here */
+}
+
 struct ieee80211_if_mesh {
 	struct timer_list housekeeping_timer;
 	struct timer_list mesh_path_timer;
@@ -495,6 +513,11 @@ struct ieee80211_if_mesh {
 	u8 mesh_cc_id;
 	/* Synchronization Protocol Identifier */
 	u8 mesh_sp_id;
+  
+	/* mesh Extensible synchronization framework */
+	struct ieee80211_mesh_sync_ops *sync_ops;
+	s64 sync_offset_clockdrift_max; 
+
 	/* Authentication Protocol Identifier */
 	u8 mesh_auth_id;
 	/* Local mesh Sequence Number */
@@ -1361,6 +1384,9 @@ ieee80211_get_channel_mode(struct ieee80211_local *local,
 bool ieee80211_set_channel_type(struct ieee80211_local *local,
 				struct ieee80211_sub_if_data *sdata,
 				enum nl80211_channel_type chantype);
+
+struct ieee80211_mesh_sync_ops *
+ieee80211_mesh_sync_ops_get(u8 method);
 
 #ifdef CONFIG_MAC80211_NOINLINE
 #define debug_noinline noinline
