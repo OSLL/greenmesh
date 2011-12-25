@@ -604,8 +604,9 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 		supp_rates = ieee80211_sta_get_rates(local, &elems, band);
 		mesh_neighbour_update(mgmt->sa, supp_rates, sdata, &elems);
 	}
-
-  ifmsh->sync_ops->rx_bcn_presp(sdata, stype, mgmt, len, rx_status);
+  
+	if(ifmsh->sync_ops)
+		ifmsh->sync_ops->rx_bcn_presp(sdata, stype, mgmt, len, rx_status);
 }
 
 static void ieee80211_mesh_rx_mgmt_action(struct ieee80211_sub_if_data *sdata,

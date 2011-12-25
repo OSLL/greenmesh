@@ -489,7 +489,7 @@ struct ieee80211_mesh_sync_ops {
                                        struct ieee80211_mgmt *mgmt,
                                        size_t len,
                                        struct ieee80211_rx_status *rx_status);
-       void (*tbtt)(struct sk_buff *skb, struct ieee80211_sub_if_data *sdata);
+       void (*adjust_tbtt)();
 
        /* add other framework functions here */
 }
