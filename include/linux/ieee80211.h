@@ -1455,8 +1455,8 @@ enum {
 /**
  * enum - mesh time synchronization protocol
  *
- * @IEEE80211_TIME_SYNC_NEIGHBOR_OFFSET: the default time synchronization protocol
- * @IEEE80211_TIME_SYNC_VENDOR: a vendor specific protocol that will
+ * @IEEE80211_TIME_SYNC_NEIGHBOR_OFFSET: the default synchronization method
+ * @IEEE80211_TIME_SYNC_VENDOR: a vendor specific method that will
  * be specified in a vendor specific information element
  */
 enum {
