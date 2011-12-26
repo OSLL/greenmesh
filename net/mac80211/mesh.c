@@ -521,8 +521,9 @@ void ieee80211_start_mesh(struct ieee80211_sub_if_data *sdata)
 	ieee80211_configure_filter(local);
 
 	ifmsh->mesh_cc_id = 0;	/* Disabled */
-	ifmsh->mesh_sp_id = 0;	/* Neighbor Offset */
 	ifmsh->mesh_auth_id = 0;	/* Disabled */
+	/* initialize */
+	ifmsh->sync_ops = ieee80211_mesh_sync_ops_get(ifmsh->mesh_sp_id);
 	set_bit(MESH_WORK_HOUSEKEEPING, &ifmsh->wrkq_flags);
 	ieee80211_mesh_root_setup(ifmsh);
 	ieee80211_queue_work(&local->hw, &sdata->work);
@@ -570,6 +571,7 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 	size_t baselen;
 	int freq;
 	enum ieee80211_band band = rx_status->band;
+  struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
 
 	/* ignore ProbeResp to foreign address */
 	if (stype == IEEE80211_STYPE_PROBE_RESP &&
@@ -602,6 +604,9 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 		supp_rates = ieee80211_sta_get_rates(local, &elems, band);
 		mesh_neighbour_update(mgmt->sa, supp_rates, sdata, &elems);
 	}
+  
+	if(ifmsh->sync_ops)
+		ifmsh->sync_ops->rx_bcn_presp(sdata, stype, mgmt, len, rx_status);
 }
 
 static void ieee80211_mesh_rx_mgmt_action(struct ieee80211_sub_if_data *sdata,
