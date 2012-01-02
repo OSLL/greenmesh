@@ -2277,12 +2277,16 @@ struct sk_buff *ieee80211_beacon_get_tim(struct ieee80211_hw *hw,
 						 IEEE80211_STYPE_BEACON);
 	} else if (ieee80211_vif_is_mesh(&sdata->vif)) {
 		struct ieee80211_mgmt *mgmt;
+		struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
 		u8 *pos;
 
 #ifdef CONFIG_MAC80211_MESH
 		if (!sdata->u.mesh.mesh_id_len)
 			goto out;
 #endif
+
+		if (ifmsh->sync_ops)
+			ifmsh->sync_ops->adjust_tbtt(sdata); /* modifies ifmsh->adjusting_tbtt */
 
 		/* headroom, head length, tail length and maximum TIM length */
 		skb = dev_alloc_skb(local->tx_headroom + 400 +
