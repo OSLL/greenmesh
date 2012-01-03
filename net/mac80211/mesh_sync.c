@@ -8,33 +8,13 @@
  */
 
 #include "ieee80211_i.h"
+#include "mesh.h"
 #include "driver-ops.h"
 
-#define MESHCONF_CAPAB_TBTT_ADJUSTING 0x20
 
 struct sync_method {
 	u8 method;
 	struct ieee80211_mesh_sync_ops ops;
-};
-
-static struct sync_method sync_methods[] = {
-	{
-		.method = IEEE80211_SYNC_METHOD_NEIGHBOR_OFFSET,
-		.ops = {
-			.rx_bcn_presp = &mesh_sync_offset_rx_bcn_presp,
-			.adjust_tbtt = &mesh_sync_offset_adjust_tbtt,
-			.add_vendor_ie = &mesh_sync_offset_add_vendor_ie,
-		}
-	},
-	{
-		.method = IEEE80211_SYNC_METHOD_VENDOR,
-		.ops = {
-			.rx_bcn_presp = &mesh_sync_vendor_rx_bcn_presp,
-			.adjust_tbtt = &mesh_sync_vendor_adjust_tbtt,
-			.add_vendor_ie = &mesh_sync_vendor_add_vendor_ie,
-		}
-	},
-
 };
 
 /**
@@ -48,34 +28,21 @@ bool mesh_peer_tbtt_adjusting(struct ieee802_11_elems *ie)
 	    MESHCONF_CAPAB_TBTT_ADJUSTING) != 0;
 }
 
-struct ieee80211_mesh_sync_ops *ieee80211_mesh_sync_ops_get(u8 method)
-{
-	struct mesh_sync_ops *ops = NULL;
-	const u8 methods_count = sizeof(sync_methods) / sizeof(sync_method);
-
-	for (u8 i = 0 ; i < methods_count; ++i) {
-		if (sync_methods[i].method == method) {
-			ops = &sync_methods[i].ops;
-			break;
-		}
-	}
-	return ops;
-}
-
 void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 				   struct ieee80211_mgmt *mgmt,
-				   struct ieee802_11_elems elems,
+				   struct ieee802_11_elems *elems,
 				   struct ieee80211_rx_status *rx_status)
 {
 	struct ieee80211_if_mesh *ifmsh = &sdata->u.mesh;
-	u64 t_t = le64_to_cpu(mgmt->u.beacon.timestamp);
-	u64 t_r;
+	struct ieee80211_local *local = sdata->local;
+	struct sta_info *sta;
+	u64 t_t, t_r;
 	s64 t_offset;
 
 	WARN_ON(ifmsh->mesh_sp_id != IEEE80211_SYNC_METHOD_NEIGHBOR_OFFSET);
 
 	rcu_read_lock(); /* TODO use rcu_read_lock() or spin_lock(&sta->lock)? */
-	struct sta_info *sta = sta_info_get(sdata, mgmt->sa);
+	sta = sta_info_get(sdata, mgmt->sa);
 	if (!sta)
 		goto no_sync;
 
@@ -88,7 +55,7 @@ void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 	if (sta_plink_state(sta) != NL80211_PLINK_ESTAB) /* neighbor peer mesh STA */
 		goto no_sync;
 
-	if (elems.mesh_config && mesh_peer_tbtt_adjusting(elems)) /* 11C.12.2.2.3 a) */
+	if (elems->mesh_config && mesh_peer_tbtt_adjusting(elems)) /* 11C.12.2.2.3 a) */
 		goto no_sync;
 
 	/* get t_r, copied from ibss.c : ieee80211_rx_bss_info(...) */
@@ -125,6 +92,7 @@ void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 	}
 
 	/* Timing offset calculation (see 11C.12.2.2.2) */
+	t_t = le64_to_cpu(mgmt->u.beacon.timestamp);
 	t_offset = t_t - t_r;
 
 	if (sta->sync_offset_valid) { /* 11C.12.2.2.3 b) */
@@ -132,7 +100,7 @@ void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 
 		spin_lock(&ifmsh->sync_offset_lock);
 		if (t_clockdrift > ifmsh->sync_offset_clockdrift_max) /* 11C.12.2.2.3 d) */
-			ifmsh->sync_offset_clockdrift_max = t_clockdrift);
+			ifmsh->sync_offset_clockdrift_max = t_clockdrift;
 		spin_unlock(&ifmsh->sync_offset_lock);
 	}
 
@@ -162,8 +130,8 @@ void mesh_sync_offset_adjust_tbtt(struct ieee80211_sub_if_data *sdata)
 	spin_lock(&ifmsh->sync_offset_lock);
 
 	if (ifmsh->sync_offset_clockdrift_max <= 0) {
-		printk(KERN_DEBUG "max clockdrift=%d; no need to adjust TBTT",
-			ifmsh->sync_offset_clockdrift_max);
+		printk(KERN_DEBUG "max clockdrift=%lld; no need to adjust TBTT",
+			(unsigned long long) ifmsh->sync_offset_clockdrift_max);
 		ifmsh->sync_offset_clockdrift_max = 0;
 		spin_unlock(&ifmsh->sync_offset_lock);
 		ifmsh->adjusting_tbtt = false;
@@ -173,13 +141,14 @@ void mesh_sync_offset_adjust_tbtt(struct ieee80211_sub_if_data *sdata)
 	tsf = drv_get_tsf(local, sdata);
 
 	if (ifmsh->sync_offset_clockdrift_max < beacon_int_fraction) {
-		printk(KERN_DEBUG "max clockdrift=%d; adjusting TBTT",
-			ifmsh->sync_offset_clockdrift_max);
+		printk(KERN_DEBUG "max clockdrift=%lld; adjusting TBTT",
+			(unsigned long long) ifmsh->sync_offset_clockdrift_max);
 		tsf += ifmsh->sync_offset_clockdrift_max;
 		ifmsh->sync_offset_clockdrift_max = 0;
 	} else {
-		printk(KERN_DEBUG "max clockdrift=%d; adjusting TBTT by %d",
-			ifmsh->sync_offset_clockdrift_max, beacon_int_fraction);
+		printk(KERN_DEBUG "max clockdrift=%lld; adjusting TBTT by %llx",
+			(unsigned long long) ifmsh->sync_offset_clockdrift_max,
+			(unsigned long long) beacon_int_fraction);
 		tsf += beacon_int_fraction;
 		ifmsh->sync_offset_clockdrift_max -= beacon_int_fraction;
 	}
@@ -197,7 +166,7 @@ void mesh_sync_offset_add_vendor_ie(struct sk_buff *skb, struct ieee80211_sub_if
 
 void mesh_sync_vendor_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 				   struct ieee80211_mgmt *mgmt,
-				   struct ieee802_11_elems elems,
+				   struct ieee802_11_elems *elems,
 				   struct ieee80211_rx_status *rx_status)
 {
 	WARN_ON(sdata->u.mesh.mesh_sp_id != IEEE80211_SYNC_METHOD_VENDOR);
@@ -214,4 +183,38 @@ void mesh_sync_vendor_add_vendor_ie(struct sk_buff *skb, struct ieee80211_sub_if
 {
 	WARN_ON(sdata->u.mesh.mesh_sp_id != IEEE80211_SYNC_METHOD_VENDOR);
 	printk(KERN_DEBUG "called mesh_sync_vendor_add_vendor_ie");
+}
+
+/* global variable */
+static struct sync_method sync_methods[] = {
+	{
+		.method = IEEE80211_SYNC_METHOD_NEIGHBOR_OFFSET,
+		.ops = {
+			.rx_bcn_presp = &mesh_sync_offset_rx_bcn_presp,
+			.adjust_tbtt = &mesh_sync_offset_adjust_tbtt,
+			.add_vendor_ie = &mesh_sync_offset_add_vendor_ie,
+		}
+	},
+	{
+		.method = IEEE80211_SYNC_METHOD_VENDOR,
+		.ops = {
+			.rx_bcn_presp = &mesh_sync_vendor_rx_bcn_presp,
+			.adjust_tbtt = &mesh_sync_vendor_adjust_tbtt,
+			.add_vendor_ie = &mesh_sync_vendor_add_vendor_ie,
+		}
+	},
+};
+
+struct ieee80211_mesh_sync_ops *ieee80211_mesh_sync_ops_get(u8 method)
+{
+	struct ieee80211_mesh_sync_ops *ops = NULL;
+	u8 i;
+
+	for (i = 0 ; i < 2; ++i) { /* hardcode */
+		if (sync_methods[i].method == method) {
+			ops = &sync_methods[i].ops;
+			break;
+		}
+	}
+	return ops;
 }

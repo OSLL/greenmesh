@@ -13,9 +13,6 @@
 #include "ieee80211_i.h"
 #include "mesh.h"
 
-#define MESHCONF_CAPAB_ACCEPT_PLINKS 0x01
-#define MESHCONF_CAPAB_FORWARDING    0x08
-
 #define TMR_RUNNING_HK	0
 #define TMR_RUNNING_MP	1
 #define TMR_RUNNING_MPR	2
@@ -249,7 +246,7 @@ mesh_add_meshconf_ie(struct sk_buff *skb, struct ieee80211_sub_if_data *sdata)
 	*pos++ = 0x00;
 
 	if(ifmsh->sync_ops)
-		ifmsh->sync_ops->add-vendor_ie(skb, sdata);
+		ifmsh->sync_ops->add_vendor_ie(skb, sdata);
 
 	return 0;
 }
@@ -611,7 +608,7 @@ static void ieee80211_mesh_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 	}
 
 	if(ifmsh->sync_ops)
-		ifmsh->sync_ops->rx_bcn_presp(sdata, mgmt, elems, rx_status);
+		ifmsh->sync_ops->rx_bcn_presp(sdata, mgmt, &elems, rx_status);
 }
 
 static void ieee80211_mesh_rx_mgmt_action(struct ieee80211_sub_if_data *sdata,

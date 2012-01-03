@@ -477,7 +477,7 @@ struct ieee80211_if_ibss {
 };
 
 /**
- * struct mesh_sync_ops - Extensible synchronization framework interface
+ * struct ieee80211_mesh_sync_ops - Extensible synchronization framework interface
  *
  * these declarations define the interface, which enables
  * vendor-specific mesh synchronization
@@ -486,12 +486,12 @@ struct ieee80211_if_ibss {
 struct ieee80211_mesh_sync_ops {
 	void (*rx_bcn_presp)(struct ieee80211_sub_if_data *sdata,
 			     struct ieee80211_mgmt *mgmt,
-			     struct ieee802_11_elems elems,
+			     struct ieee802_11_elems *elems,
 			     struct ieee80211_rx_status *rx_status);
 	void (*adjust_tbtt)(struct ieee80211_sub_if_data *sdata);
 	void (*add_vendor_ie)(struct sk_buff *skb, struct ieee80211_sub_if_data *sdata);
 	/* add other framework functions here */
-}
+};
 
 struct ieee80211_if_mesh {
 	struct timer_list housekeeping_timer;
