@@ -483,7 +483,7 @@ struct ieee80211_if_ibss {
  * vendor-specific mesh synchronization
  *
  */
-struct ieee80211_mesh_sync_ops {
+struct ieee80211_mesh_sync_ops { /* TODO compiler warning: elems defined below */
 	void (*rx_bcn_presp)(struct ieee80211_sub_if_data *sdata,
 			     u16 stype,
 			     struct ieee80211_mgmt *mgmt,

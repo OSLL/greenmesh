@@ -1182,6 +1182,8 @@ static int ieee80211_update_mesh_config(struct wiphy *wiphy,
 		conf->dot11MeshTTL = nconf->element_ttl;
 	if (_chg_mesh_attr(NL80211_MESHCONF_AUTO_OPEN_PLINKS, mask))
 		conf->auto_open_plinks = nconf->auto_open_plinks;
+	if (_chg_mesh_attr(NL80211_MESHCONF_SYNC_OFFSET_MAX_NEIGHBOR, mask))
+		conf->dot11MeshNbrOffsetMaxNeighbor = nconf->dot11MeshNbrOffsetMaxNeighbor;
 	if (_chg_mesh_attr(NL80211_MESHCONF_HWMP_MAX_PREQ_RETRIES, mask))
 		conf->dot11MeshHWMPmaxPREQretries =
 			nconf->dot11MeshHWMPmaxPREQretries;

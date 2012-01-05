@@ -64,7 +64,7 @@ void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 		goto no_sync;
 
 	/* get t_r, copied from ibss.c : ieee80211_rx_bss_info(...) */
-	if (rx_status->flag & RX_FLAG_MACTIME_MPDU) {
+	if (rx_status->flag & RX_FLAG_MACTIME_MPDU && rx_status->mactime) { /* bugfix: mactime is zero */
 		/*
 		 * For correct IBSS merging we need mactime; since mactime is
 		 * defined as the time the first data symbol of the frame hits
