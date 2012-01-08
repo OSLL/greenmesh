@@ -60,8 +60,12 @@ void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 	if (sta_plink_state(sta) != NL80211_PLINK_ESTAB) /* neighbor peer mesh STA */
 		goto no_sync;
 
-	if (elems->mesh_config && mesh_peer_tbtt_adjusting(elems)) /* 11C.12.2.2.3 a) */
+	if (elems->mesh_config && mesh_peer_tbtt_adjusting(elems)) { /* 11C.12.2.2.3 a) */
+		printk(KERN_DEBUG "STA %pM : is adjusting TBTT",
+			sta->sta.addr);
+
 		goto no_sync;
+	}
 
 	/* get t_r, copied from ibss.c : ieee80211_rx_bss_info(...) */
 	if (rx_status->flag & RX_FLAG_MACTIME_MPDU && rx_status->mactime) { /* bugfix: mactime is zero */
@@ -86,8 +90,14 @@ void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 		else
 			rate = local->hw.wiphy->bands[rx_status->band]->
 				bitrates[rx_status->rate_idx].bitrate;
-
+				
 		t_r = rx_status->mactime + (24 * 8 * 10 / rate);
+
+		printk(KERN_DEBUG "STA %pM : calculated t_r=%lld, rate=%d, rx_status->mactime=%lld",
+			sta->sta.addr,
+			(unsigned long long) t_r,
+			rate,
+			(unsigned long long) rx_status->mactime);
 	} else {
 		/*
 		 * second best option: get current TSF
@@ -108,7 +118,7 @@ void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 			ifmsh->sync_offset_clockdrift_max = t_clockdrift;
 		spin_unlock(&ifmsh->sync_offset_lock);
 
-		printk(KERN_DEBUG "sta %pM : t_r=%lld, t_t=%llu, t_offset=%lld, sta->sync_offset=%lld, t_clockdrift=%lld",
+		printk(KERN_DEBUG "STA %pM : t_r=%lld, t_t=%llu, t_offset=%lld, sta->sync_offset=%lld, t_clockdrift=%lld",
 			sta->sta.addr,
 			(unsigned long long) t_r,
 			(unsigned long long) t_t,
@@ -116,7 +126,7 @@ void mesh_sync_offset_rx_bcn_presp(struct ieee80211_sub_if_data *sdata,
 			(long long) sta->sync_offset,
 			(long long) t_clockdrift);
 	} else
-		printk(KERN_DEBUG "sta %pM : offset was invalid, t_r=%lld, t_t=%llu, t_offset=%lld",
+		printk(KERN_DEBUG "STA %pM : offset was invalid, t_r=%lld, t_t=%llu, t_offset=%lld",
 			sta->sta.addr,
 			(unsigned long long) t_r,
 			(unsigned long long) t_t,
@@ -148,7 +158,7 @@ void mesh_sync_offset_adjust_tbtt(struct ieee80211_sub_if_data *sdata)
 	spin_lock(&ifmsh->sync_offset_lock);
 
 	if (ifmsh->sync_offset_clockdrift_max <= 0) {
-		printk(KERN_DEBUG "max clockdrift=%lld; no need to adjust TBTT",
+		printk(KERN_DEBUG "TBTT : max clockdrift=%lld; no need to adjust",
 			(long long) ifmsh->sync_offset_clockdrift_max);
 		ifmsh->sync_offset_clockdrift_max = 0;
 		spin_unlock(&ifmsh->sync_offset_lock);
@@ -159,12 +169,12 @@ void mesh_sync_offset_adjust_tbtt(struct ieee80211_sub_if_data *sdata)
 	tsf = drv_get_tsf(local, sdata);
 
 	if (ifmsh->sync_offset_clockdrift_max < beacon_int_fraction) {
-		printk(KERN_DEBUG "max clockdrift=%lld; adjusting TBTT",
+		printk(KERN_DEBUG "TBTT : max clockdrift=%lld; adjusting",
 			(long long) ifmsh->sync_offset_clockdrift_max);
 		tsf += ifmsh->sync_offset_clockdrift_max;
 		ifmsh->sync_offset_clockdrift_max = 0;
 	} else {
-		printk(KERN_DEBUG "max clockdrift=%lld; adjusting TBTT by %llu",
+		printk(KERN_DEBUG "TBTT : max clockdrift=%lld; adjusting by %llu",
 			(long long) ifmsh->sync_offset_clockdrift_max,
 			(unsigned long long) beacon_int_fraction);
 		tsf += beacon_int_fraction;
