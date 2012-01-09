@@ -523,8 +523,8 @@ enum station_info_flags {
 	STATION_INFO_CONNECTED_TIME	= 1<<16,
 	STATION_INFO_ASSOC_REQ_IES	= 1<<17,
 	STATION_INFO_STA_FLAGS		= 1<<18,
-	STATION_INFO_LOCAL_MESH_PS_MODE = 1<<17,
-	STATION_INFO_PEER_MESH_PS_MODE  = 1<<18
+	STATION_INFO_LOCAL_MESH_PS_MODE = 1<<19,
+	STATION_INFO_PEER_MESH_PS_MODE  = 1<<20
 };
 
 /**
@@ -776,7 +776,7 @@ struct mesh_config {
 	u8  dot11MeshMaxRetries;
 	u8  dot11MeshTTL;
 	/* non-peer mesh power save mode */
-	u8 power_mode;
+	enum nl80211_mesh_power_mode power_mode;
 	u32 dot11MeshAwakeWindowDuration;
 	/* ttl used in path selection information elements */
 	u8  element_ttl;

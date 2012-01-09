@@ -553,8 +553,7 @@ static inline int ieee80211_is_qos_nullfunc(__le16 fc)
 
 static inline int ieee80211s_has_qos_pm(__le16 qc)
 {
-	return (qc & cpu_to_le16(
-			IEEE80211_QOS_CTL_MESH_PS_LEVEL)) != 0;
+	return qc & cpu_to_le16(IEEE80211_QOS_CTL_MESH_PS_LEVEL);
 }
 
 struct ieee80211s_hdr {
