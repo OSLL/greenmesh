@@ -239,7 +239,7 @@ struct ieee80211_mesh_sync_ops *ieee80211_mesh_sync_ops_get(u8 method)
 	struct ieee80211_mesh_sync_ops *ops = NULL;
 	u8 i;
 
-	for (i = 0 ; i < 2; ++i) { /* hardcode */
+	for (i = 0 ; i < ARRAY_SIZE(sync_methods); ++i) {
 		if (sync_methods[i].method == method) {
 			ops = &sync_methods[i].ops;
 			break;
