@@ -229,7 +229,8 @@ void ieee80211_stop_mesh(struct ieee80211_sub_if_data *sdata);
 void ieee80211_mesh_root_setup(struct ieee80211_if_mesh *ifmsh);
 void ieee80211s_set_sta_ps_mode(struct sta_info *sta,
 				enum nl80211_mesh_power_mode mode);
-void ieee80211s_set_local_ps_mode(struct sta_info *sta, u8 pm);
+void ieee80211s_set_local_ps_mode(struct sta_info *sta, 
+		enum nl80211_mesh_power_mode pm);
 
 /* Mesh paths */
 int mesh_nexthop_lookup(struct sk_buff *skb,
@@ -252,7 +253,7 @@ int mesh_path_add_gate(struct mesh_path *mpath);
 int mesh_path_send_to_gates(struct mesh_path *mpath);
 int mesh_gate_num(struct ieee80211_sub_if_data *sdata);
 /* Mesh plinks */
-void mesh_neighbour_update(ieee80211_mgmt *mgmt, u32 rates,
+void mesh_neighbour_update(struct ieee80211_mgmt *mgmt, u32 rates,
 		struct ieee80211_sub_if_data *sdata,
 		struct ieee802_11_elems *ie);
 bool mesh_peer_accepts_plinks(struct ieee802_11_elems *ie);

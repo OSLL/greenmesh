@@ -242,7 +242,7 @@ static int mesh_plink_frame_tx(struct ieee80211_sub_if_data *sdata,
 	return 0;
 }
 
-void mesh_neighbour_update(ieee80211_mgmt *mgmt, u32 rates,
+void mesh_neighbour_update(struct ieee80211_mgmt *mgmt, u32 rates,
 		struct ieee80211_sub_if_data *sdata,
 		struct ieee802_11_elems *elems)
 {
