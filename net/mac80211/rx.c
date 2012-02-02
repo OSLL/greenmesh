@@ -1381,16 +1381,15 @@ ieee80211_rx_h_sta_process(struct ieee80211_rx_data *rx)
 	if (!ieee80211_has_morefrags(hdr->frame_control) &&
 	    !(status->rx_flags & IEEE80211_RX_DEFERRED_RELEASE) &&
 	    ieee80211_vif_is_mesh(&rx->sdata->vif) &&
-	    ieee80211_is_data(hdr->frame_control)) {
+	    ieee80211_is_data_qos(hdr->frame_control)) {
 		if (ieee80211_has_pm(hdr->frame_control)) {
 			__le16 *qc = (__le16 *) ieee80211_get_qos_ctl(hdr);
-			if (ieee80211s_has_qos_pm(*qc)) {
+			if (ieee80211s_has_qos_pm(*qc))
 				ieee80211s_set_sta_ps_mode(sta,
 					NL80211_MESH_POWER_DEEP_SLEEP);
-			} else {
+			else
 				ieee80211s_set_sta_ps_mode(sta,
 					NL80211_MESH_POWER_LIGHT_SLEEP);
-			}
 		} else {
 			ieee80211s_set_sta_ps_mode(sta,
 				NL80211_MESH_POWER_ACTIVE);
